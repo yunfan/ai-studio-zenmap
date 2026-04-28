@@ -60,6 +60,9 @@ export default function MindMap({ initialData, onChange, theme, onThemeChange, m
   const svgRef = useRef<SVGSVGElement>(null);
   const containerRef = useRef<HTMLDivElement>(null);
   const exportRef = useRef<HTMLDivElement>(null);
+  const themeRef = useRef<HTMLDivElement>(null);
+  const configRef = useRef<HTMLDivElement>(null);
+  const toolbarRef = useRef<HTMLDivElement>(null);
   const zoomBehaviorRef = useRef<d3.ZoomBehavior<Element, unknown> | null>(null);
   
   // React State for UI
@@ -334,6 +337,26 @@ export default function MindMap({ initialData, onChange, theme, onThemeChange, m
 
     return () => sim.stop();
   }, [nodesVersion, repulsion, linkDistance]);
+
+  // Close dropdowns on click outside
+  useEffect(() => {
+    const handleClickOutside = (e: MouseEvent) => {
+      const target = e.target as Node;
+      const isExportClick = exportRef.current?.contains(target);
+      const isThemeClick = themeRef.current?.contains(target);
+      const isConfigClick = configRef.current?.contains(target);
+      const isToolbarClick = toolbarRef.current?.contains(target);
+
+      if (!isExportClick && !isThemeClick && !isConfigClick && !isToolbarClick) {
+        setIsExportOpen(false);
+        setIsThemeOpen(false);
+        setIsConfigOpen(false);
+      }
+    };
+
+    document.addEventListener('mousedown', handleClickOutside);
+    return () => document.removeEventListener('mousedown', handleClickOutside);
+  }, []);
 
   // Handle Zoom and Pan Setup
   useEffect(() => {
@@ -686,7 +709,7 @@ export default function MindMap({ initialData, onChange, theme, onThemeChange, m
       </div>
 
       {/* Toolbar - UI terminology: Button Group or Segmented Control */}
-      <div className="absolute top-6 left-6 z-30 flex gap-2 items-start relative" data-export-hide="true">
+      <div ref={toolbarRef} className="absolute top-6 left-6 z-30 flex gap-2 items-start relative" data-export-hide="true">
         <div className="bg-white rounded-xl shadow-sm border border-zinc-200 p-1.5 flex gap-1 h-fit">
           <button onClick={fitView} className="p-2 text-zinc-600 hover:bg-zinc-100 hover:text-zinc-900 rounded-lg transition-colors tooltip" title={t('toolbar.fitToScreen')}>
             <Maximize size={18} />
@@ -695,15 +718,15 @@ export default function MindMap({ initialData, onChange, theme, onThemeChange, m
             <Target size={18} />
           </button>
           <div className="w-[1px] h-6 bg-zinc-200 my-auto mx-1"></div>
-          <button 
-            onClick={() => { setIsThemeOpen(!isThemeOpen); setIsConfigOpen(false); setIsExportOpen(false); }}
+          <button
+            onClick={(e) => { e.stopPropagation(); setIsThemeOpen(!isThemeOpen); setIsConfigOpen(false); setIsExportOpen(false); }}
             className="p-2 text-zinc-600 hover:bg-zinc-100 hover:text-zinc-900 rounded-lg transition-colors tooltip"
             title={t('toolbar.themeSettings')}
           >
             <Palette size={18} />
           </button>
-          <button 
-            onClick={() => { setIsExportOpen(!isExportOpen); setIsConfigOpen(false); setIsThemeOpen(false); }}
+          <button
+            onClick={(e) => { e.stopPropagation(); setIsExportOpen(!isExportOpen); setIsConfigOpen(false); setIsThemeOpen(false); }}
             className="p-2 text-zinc-600 hover:bg-zinc-100 hover:text-zinc-900 rounded-lg transition-colors tooltip"
             title={t('toolbar.exportImage')}
           >
@@ -713,7 +736,8 @@ export default function MindMap({ initialData, onChange, theme, onThemeChange, m
 
         <AnimatePresence>
           {isExportOpen && (
-            <motion.div 
+            <motion.div
+              ref={exportRef}
               initial={{ opacity: 0, y: 10, scale: 0.95 }}
               animate={{ opacity: 1, y: 0, scale: 1 }}
               exit={{ opacity: 0, y: 10, scale: 0.95 }}
@@ -737,7 +761,8 @@ export default function MindMap({ initialData, onChange, theme, onThemeChange, m
 
         <AnimatePresence>
           {isThemeOpen && (
-            <motion.div 
+            <motion.div
+              ref={themeRef}
               initial={{ opacity: 0, y: 10, scale: 0.95 }}
               animate={{ opacity: 1, y: 0, scale: 1 }}
               exit={{ opacity: 0, y: 10, scale: 0.95 }}
@@ -835,8 +860,8 @@ export default function MindMap({ initialData, onChange, theme, onThemeChange, m
             {t('map.save')}
           </button>
         )}
-        <button 
-          onClick={() => { setIsConfigOpen(!isConfigOpen); setIsThemeOpen(false); setIsExportOpen(false); }}
+        <button
+          onClick={(e) => { e.stopPropagation(); setIsConfigOpen(!isConfigOpen); setIsThemeOpen(false); setIsExportOpen(false); }}
           className="bg-white rounded-xl shadow-sm border border-zinc-200 p-2 text-zinc-600 hover:bg-zinc-100 hover:text-zinc-900 transition-all flex items-center gap-2 font-medium text-sm px-4 h-[42px]"
         >
           <Settings size={18} />
@@ -845,7 +870,8 @@ export default function MindMap({ initialData, onChange, theme, onThemeChange, m
 
         <AnimatePresence>
           {isConfigOpen && (
-            <motion.div 
+            <motion.div
+              ref={configRef}
               initial={{ opacity: 0, y: 10, scale: 0.95 }}
               animate={{ opacity: 1, y: 0, scale: 1 }}
               exit={{ opacity: 0, y: 10, scale: 0.95 }}
