@@ -454,24 +454,42 @@ export default function MindMap({ initialData, onChange, theme, onThemeChange, m
   const deleteNode = (id: string) => {
     const node = nodesRef.current.find(n => n.id === id);
     if (!node || node.isRoot || node.diffStatus === 'deleted') return; // Cannot delete root
-    
+
     // Find children
     const getChildrenRecursively = (nId: string): string[] => {
       const currentChildren = nodesRef.current.filter(n => n.parentId === nId).map(n => n.id);
       return [...currentChildren, ...currentChildren.flatMap(getChildrenRecursively)];
     };
-    
-    const toDelete = [id, ...getChildrenRecursively(id)];
-    
+
+    const toDelete = new Set([id, ...getChildrenRecursively(id)]);
+
+    // Separate truly new nodes (added) from existing nodes that need marking as deleted
+    const toRemove: string[] = []; // added nodes to completely remove
+    const toMarkDeleted: string[] = []; // existing nodes to mark as deleted
+
     nodesRef.current.forEach(n => {
-      if (toDelete.includes(n.id)) {
+      if (toDelete.has(n.id)) {
         if (n.diffStatus === 'added') {
-          // If it was just added, we can just delete it completely from view maybe?
-          // But to be simple, let's just mark it as deleted.
-          n.diffStatus = 'deleted';
+          toRemove.push(n.id);
         } else {
-          n.diffStatus = 'deleted';
+          toMarkDeleted.push(n.id);
         }
+      }
+    });
+
+    // Remove completely new nodes (they were never saved)
+    nodesRef.current = nodesRef.current.filter(n => !toRemove.includes(n.id));
+    // Remove links associated with removed nodes
+    linksRef.current = linksRef.current.filter(l => {
+      const srcId = typeof l.source === 'object' ? l.source.id : l.source;
+      const tgtId = typeof l.target === 'object' ? l.target.id : l.target;
+      return !toRemove.includes(srcId) && !toRemove.includes(tgtId);
+    });
+
+    // Mark existing nodes as deleted
+    nodesRef.current.forEach(n => {
+      if (toMarkDeleted.includes(n.id)) {
+        n.diffStatus = 'deleted';
       }
     });
 
@@ -611,12 +629,12 @@ export default function MindMap({ initialData, onChange, theme, onThemeChange, m
                   node.diffStatus === 'added'
                     ? "bg-emerald-400 border-emerald-400 text-emerald-950 shadow-xl"
                     : node.diffStatus === 'edited'
-                      ? "bg-[var(--theme-main)] border-emerald-400 text-[var(--theme-text-contrast)]"
-                      : node.isRoot 
-                        ? "bg-[var(--theme-main)] border-[var(--theme-main)] text-[var(--theme-text-contrast)] shadow-xl scale-105" 
+                      ? "bg-[var(--theme-main)] border-amber-400 text-[var(--theme-text-contrast)]"
+                      : node.isRoot
+                        ? "bg-[var(--theme-main)] border-[var(--theme-main)] text-[var(--theme-text-contrast)] shadow-xl scale-105"
                         : "bg-white border-[var(--theme-border)] text-zinc-900 hover:border-[var(--theme-border-hover)] hover:shadow-lg cursor-pointer",
-                  selectedId === node.id 
-                    ? "ring-2 ring-[var(--theme-main)] ring-offset-2 ring-offset-[var(--theme-bg-soft)] border-transparent z-10" 
+                  selectedId === node.id
+                    ? "ring-2 ring-[var(--theme-main)] ring-offset-2 ring-offset-[var(--theme-bg-soft)] border-transparent z-10"
                     : ""
                 )}
               >
