@@ -1,11 +1,12 @@
 import React, { useState, useEffect } from 'react';
 import MindMap, { MindMapData, MindMapTheme } from './components/MindMap';
-import { I18nProvider } from './i18n/I18nContext';
+import { I18nProvider, useTranslation } from './i18n/I18nContext';
 import { loadMap, getMapMeta, saveMap } from './lib/api';
 
 const STORAGE_KEY = 'zenmap-data';
 
 function AppContent() {
+  const { t } = useTranslation();
   const [data, setData] = useState<MindMapData | null>(null);
   const [loading, setLoading] = useState(true);
   const [mapId, setMapId] = useState<string | null>(null);
@@ -61,9 +62,9 @@ function AppContent() {
       setLoading(false);
     } catch (err: any) {
       if (err.message && err.message.toLowerCase().includes("password")) {
-        setErrorMsg("Incorrect password.");
+        setErrorMsg(t('error.incorrectPassword'));
       } else {
-        setErrorMsg("Failed to load map.");
+        setErrorMsg(t('error.loadFailed'));
       }
       setLoading(false);
     }
@@ -119,30 +120,30 @@ function AppContent() {
   };
 
   if (loading) {
-    return <div className="min-h-screen flex items-center justify-center bg-zinc-50">Loading...</div>;
+    return <div className="min-h-screen flex items-center justify-center bg-zinc-50">{t('loading')}</div>;
   }
 
   if (requirePassword) {
     return (
       <div className="min-h-screen flex flex-col items-center justify-center bg-zinc-50">
         <div className="bg-white p-8 rounded-2xl shadow-xl max-w-sm w-full border border-zinc-200">
-          <h2 className="text-xl font-semibold mb-4 text-zinc-800">Password Required</h2>
-          <p className="text-sm text-zinc-500 mb-6">This map is password protected.</p>
+          <h2 className="text-xl font-semibold mb-4 text-zinc-800">{t('passwordRequired')}</h2>
+          <p className="text-sm text-zinc-500 mb-6">{t('passwordRequiredDesc')}</p>
           <input
             type="password"
             autoFocus
             className="w-full px-4 py-2 border rounded-lg focus:ring-2 focus:ring-blue-500 outline-none transition"
-            placeholder="Enter password..."
+            placeholder={t('passwordPlaceholder')}
             value={passwordInput}
             onChange={(e) => setPasswordInput(e.target.value)}
             onKeyDown={(e) => e.key === 'Enter' && loadData(mapId!, passwordInput)}
           />
           {errorMsg && <p className="text-red-500 text-sm mt-2">{errorMsg}</p>}
-          <button 
+          <button
             onClick={() => loadData(mapId!, passwordInput)}
             className="w-full mt-4 bg-zinc-900 text-white py-2 rounded-lg hover:bg-zinc-800 transition"
           >
-            Unlock
+            {t('passwordUnlock')}
           </button>
         </div>
       </div>
@@ -162,34 +163,34 @@ function AppContent() {
       {showSaveModal && (
         <div className="fixed inset-0 z-50 flex items-center justify-center bg-black/40 backdrop-blur-sm">
           <div className="bg-white p-6 rounded-2xl shadow-2xl max-w-sm w-full border border-zinc-200">
-            <h2 className="text-xl font-bold mb-2">Publish Changes</h2>
+            <h2 className="text-xl font-bold mb-2">{t('modal.publishTitle')}</h2>
             <p className="text-sm text-zinc-500 mb-6">
-              This will create a new permanent link for your mind map. You can optionally protect it with a password.
+              {t('modal.publishDesc')}
             </p>
             <div className="mb-6">
-              <label className="block text-sm font-medium text-zinc-700 mb-1">Password (Optional)</label>
+              <label className="block text-sm font-medium text-zinc-700 mb-1">{t('modal.passwordLabel')}</label>
               <input
                 type="password"
                 className="w-full px-4 py-2 border rounded-lg focus:ring-2 focus:ring-blue-500 outline-none transition"
-                placeholder="Leave blank for public access"
+                placeholder={t('modal.passwordPlaceholder')}
                 value={savePassword}
                 onChange={(e) => setSavePassword(e.target.value)}
               />
             </div>
             <div className="flex gap-3 justify-end">
-              <button 
+              <button
                 className="px-4 py-2 text-zinc-600 hover:bg-zinc-100 rounded-lg transition"
                 onClick={() => setShowSaveModal(false)}
                 disabled={saving}
               >
-                Cancel
+                {t('modal.cancel')}
               </button>
-              <button 
+              <button
                 className="px-4 py-2 bg-zinc-900 text-white rounded-lg hover:bg-zinc-800 transition disabled:opacity-50 flex items-center gap-2"
                 onClick={handlePublish}
                 disabled={saving}
               >
-                {saving ? 'Publishing...' : 'Publish'}
+                {saving ? t('modal.publishing') : t('modal.publish')}
               </button>
             </div>
           </div>

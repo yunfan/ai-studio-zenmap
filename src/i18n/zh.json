@@ -31,5 +31,18 @@
   "hints.child": "子节点",
   "hints.sibling": "同级节点",
   "hints.edit": "编辑",
-  "hints.delete": "删除"
+  "hints.delete": "删除",
+  "modal.publishTitle": "发布更改",
+  "modal.publishDesc": "这将为您的心智图创建一个新的永久链接。您可以选择使用密码保护它。",
+  "modal.passwordLabel": "密码（可选）",
+  "modal.passwordPlaceholder": "留空则公开访问",
+  "modal.cancel": "取消",
+  "modal.publish": "发布",
+  "modal.publishing": "发布中...",
+  "error.loadFailed": "加载心智图失败。",
+  "error.incorrectPassword": "密码错误。",
+  "loading": "加载中...",
+  "passwordRequired": "需要密码",
+  "passwordRequiredDesc": "此心智图受密码保护。",
+  "passwordUnlock": "解锁"
 }

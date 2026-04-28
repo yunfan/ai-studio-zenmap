@@ -627,6 +627,7 @@ export default function MindMap({ initialData, onChange, theme, onThemeChange, m
                     value={node.text}
                     onChange={(e) => updateNodeText(node.id, e.target.value)}
                     onBlur={() => setEditingId(null)}
+                    onFocus={(e) => e.target.select()}
                     size={Math.max(node.text.length, 5)}
                   />
                 ) : (

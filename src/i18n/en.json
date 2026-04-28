@@ -31,5 +31,18 @@
   "hints.child": "Child",
   "hints.sibling": "Sibling",
   "hints.edit": "Edit",
-  "hints.delete": "Delete"
+  "hints.delete": "Delete",
+  "modal.publishTitle": "Publish Changes",
+  "modal.publishDesc": "This will create a new permanent link for your mind map. You can optionally protect it with a password.",
+  "modal.passwordLabel": "Password (Optional)",
+  "modal.passwordPlaceholder": "Leave blank for public access",
+  "modal.cancel": "Cancel",
+  "modal.publish": "Publish",
+  "modal.publishing": "Publishing...",
+  "error.loadFailed": "Failed to load map.",
+  "error.incorrectPassword": "Incorrect password.",
+  "loading": "Loading...",
+  "passwordRequired": "Password Required",
+  "passwordRequiredDesc": "This map is password protected.",
+  "passwordUnlock": "Unlock"
 }
