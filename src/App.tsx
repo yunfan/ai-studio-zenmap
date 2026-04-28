@@ -16,10 +16,12 @@ function AppContent() {
   const [savePassword, setSavePassword] = useState('');
   const [saving, setSaving] = useState(false);
 
-  const [theme, setTheme] = useState<MindMapTheme>({
-    l: 0.6,
-    c: 0.15,
-    h: 250
+  const [theme, setTheme] = useState<MindMapTheme>(() => {
+    return {
+      l: parseFloat(localStorage.getItem('zenmap-l') || '0.6'),
+      c: parseFloat(localStorage.getItem('zenmap-c') || '0.15'),
+      h: parseFloat(localStorage.getItem('zenmap-h') || '250')
+    };
   });
 
   useEffect(() => {
@@ -64,6 +66,12 @@ function AppContent() {
       setLoading(false);
     }
   };
+
+  useEffect(() => {
+    localStorage.setItem('zenmap-l', theme.l.toString());
+    localStorage.setItem('zenmap-c', theme.c.toString());
+    localStorage.setItem('zenmap-h', theme.h.toString());
+  }, [theme]);
 
   const handlePublish = async () => {
     if (!data) return;

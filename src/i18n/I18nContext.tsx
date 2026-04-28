@@ -17,11 +17,14 @@ const I18nContext = createContext<I18nContextProps | null>(null);
 
 export const I18nProvider: React.FC<{ children: React.ReactNode }> = ({ children }) => {
   const [locale, setLocaleState] = useState<ValidLocale>(() => {
+    const saved = localStorage.getItem('zenmap-locale');
+    if (saved === 'en' || saved === 'zh') return saved as ValidLocale;
     return navigator.language.startsWith('zh') ? 'zh' : 'en';
   });
 
   const setLocale = (newLocale: ValidLocale) => {
     setLocaleState(newLocale);
+    localStorage.setItem('zenmap-locale', newLocale);
   };
 
   const t = (key: keyof Translations) => {
