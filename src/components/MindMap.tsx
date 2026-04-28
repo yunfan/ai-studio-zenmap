@@ -341,13 +341,15 @@ export default function MindMap({ initialData, onChange, theme, onThemeChange, m
   // Close dropdowns on click outside
   useEffect(() => {
     const handleClickOutside = (e: MouseEvent) => {
+      if (!isExportOpen && !isThemeOpen && !isConfigOpen) return;
+      
       const target = e.target as Node;
-      const isExportClick = exportRef.current?.contains(target);
-      const isThemeClick = themeRef.current?.contains(target);
-      const isConfigClick = configRef.current?.contains(target);
-      const isToolbarClick = toolbarRef.current?.contains(target);
+      const isClickInExport = exportRef.current?.contains(target) ?? false;
+      const isClickInTheme = themeRef.current?.contains(target) ?? false;
+      const isClickInConfig = configRef.current?.contains(target) ?? false;
+      const isClickInToolbar = toolbarRef.current?.contains(target) ?? false;
 
-      if (!isExportClick && !isThemeClick && !isConfigClick && !isToolbarClick) {
+      if (!isClickInExport && !isClickInTheme && !isClickInConfig && !isClickInToolbar) {
         setIsExportOpen(false);
         setIsThemeOpen(false);
         setIsConfigOpen(false);
@@ -356,7 +358,7 @@ export default function MindMap({ initialData, onChange, theme, onThemeChange, m
 
     document.addEventListener('mousedown', handleClickOutside);
     return () => document.removeEventListener('mousedown', handleClickOutside);
-  }, []);
+  }, [isExportOpen, isThemeOpen, isConfigOpen]);
 
   // Handle Zoom and Pan Setup
   useEffect(() => {
