@@ -350,8 +350,8 @@ export default function MindMap({ initialData, onChange, theme, onThemeChange, m
       setIsConfigOpen(false);
     };
 
-    document.addEventListener('mousedown', handleClickOutside);
-    return () => document.removeEventListener('mousedown', handleClickOutside);
+    document.addEventListener('pointerdown', handleClickOutside);
+    return () => document.removeEventListener('pointerdown', handleClickOutside);
   }, []);
 
   // Handle Zoom and Pan Setup
