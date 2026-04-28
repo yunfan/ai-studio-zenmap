@@ -339,17 +339,9 @@ export default function MindMap({ initialData, onChange, theme, onThemeChange, m
     return () => sim.stop();
   }, [nodesVersion, repulsion, linkDistance]);
 
-  // Ref to track menu state for click outside handler (avoid stale closure)
-  const isMenuOpenRef = useRef(false);
-  useEffect(() => {
-    isMenuOpenRef.current = isExportOpen || isThemeOpen || isConfigOpen;
-  }, [isExportOpen, isThemeOpen, isConfigOpen]);
-
   // Close dropdowns on click outside
   useEffect(() => {
     const handleClickOutside = (e: MouseEvent) => {
-      if (!isMenuOpenRef.current) return;
-      
       const target = e.target as Node;
       const isClickInExport = exportMenuRef.current?.contains(target) ?? false;
       const isClickInTheme = themeMenuRef.current?.contains(target) ?? false;
