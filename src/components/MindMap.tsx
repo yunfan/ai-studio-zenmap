@@ -59,9 +59,10 @@ export default function MindMap({ initialData, onChange, theme, onThemeChange, m
   // Container & Zoom Refs
   const svgRef = useRef<SVGSVGElement>(null);
   const containerRef = useRef<HTMLDivElement>(null);
-  const exportRef = useRef<HTMLDivElement>(null);
-  const themeRef = useRef<HTMLDivElement>(null);
-  const configRef = useRef<HTMLDivElement>(null);
+  const exportContainerRef = useRef<HTMLDivElement>(null);
+  const exportMenuRef = useRef<HTMLDivElement>(null);
+  const themeMenuRef = useRef<HTMLDivElement>(null);
+  const configMenuRef = useRef<HTMLDivElement>(null);
   const toolbarRef = useRef<HTMLDivElement>(null);
   const zoomBehaviorRef = useRef<d3.ZoomBehavior<Element, unknown> | null>(null);
   
@@ -120,7 +121,7 @@ export default function MindMap({ initialData, onChange, theme, onThemeChange, m
   } as React.CSSProperties & Record<string, string>;
 
   const handleExport = useCallback(async (format: 'png' | 'jpg' | 'svg' | 'webp') => {
-    if (!exportRef.current || !svgRef.current || !containerRef.current) return;
+    if (!exportContainerRef.current || !svgRef.current || !containerRef.current) return;
     try {
       let dataUrl;
       const exportBgColor = themeStyles['--theme-bg-soft'];
@@ -148,7 +149,7 @@ export default function MindMap({ initialData, onChange, theme, onThemeChange, m
       const width = Math.ceil(maxX - minX);
       const height = Math.ceil(maxY - minY);
 
-      const exportNode = exportRef.current;
+      const exportNode = exportContainerRef.current;
       const edgeGroup = document.getElementById('edge-group');
       const nodeGroup = document.getElementById('node-group');
       
@@ -350,9 +351,9 @@ export default function MindMap({ initialData, onChange, theme, onThemeChange, m
       if (!isMenuOpenRef.current) return;
       
       const target = e.target as Node;
-      const isClickInExport = exportRef.current?.contains(target) ?? false;
-      const isClickInTheme = themeRef.current?.contains(target) ?? false;
-      const isClickInConfig = configRef.current?.contains(target) ?? false;
+      const isClickInExport = exportMenuRef.current?.contains(target) ?? false;
+      const isClickInTheme = themeMenuRef.current?.contains(target) ?? false;
+      const isClickInConfig = configMenuRef.current?.contains(target) ?? false;
       const isClickInToolbar = toolbarRef.current?.contains(target) ?? false;
 
       if (!isClickInExport && !isClickInTheme && !isClickInConfig && !isClickInToolbar) {
@@ -618,7 +619,7 @@ export default function MindMap({ initialData, onChange, theme, onThemeChange, m
 
 
   return (
-    <div ref={exportRef} className="w-full h-screen overflow-hidden relative bg-[var(--theme-bg-soft)]" style={themeStyles}>
+    <div ref={exportContainerRef} className="w-full h-screen overflow-hidden relative bg-[var(--theme-bg-soft)]" style={themeStyles}>
       {/* Background Dots Canvas */}
       <div className="absolute inset-0 z-0 opacity-40 bg-[radial-gradient(var(--theme-grid)_1px,transparent_1px)] [background-size:24px_24px] pointer-events-none" />
 
@@ -745,7 +746,7 @@ export default function MindMap({ initialData, onChange, theme, onThemeChange, m
         <AnimatePresence>
           {isExportOpen && (
             <motion.div
-              ref={exportRef}
+              ref={exportMenuRef}
               initial={{ opacity: 0, y: 10, scale: 0.95 }}
               animate={{ opacity: 1, y: 0, scale: 1 }}
               exit={{ opacity: 0, y: 10, scale: 0.95 }}
@@ -770,7 +771,7 @@ export default function MindMap({ initialData, onChange, theme, onThemeChange, m
         <AnimatePresence>
           {isThemeOpen && (
             <motion.div
-              ref={themeRef}
+              ref={themeMenuRef}
               initial={{ opacity: 0, y: 10, scale: 0.95 }}
               animate={{ opacity: 1, y: 0, scale: 1 }}
               exit={{ opacity: 0, y: 10, scale: 0.95 }}
@@ -879,7 +880,7 @@ export default function MindMap({ initialData, onChange, theme, onThemeChange, m
         <AnimatePresence>
           {isConfigOpen && (
             <motion.div
-              ref={configRef}
+              ref={configMenuRef}
               initial={{ opacity: 0, y: 10, scale: 0.95 }}
               animate={{ opacity: 1, y: 0, scale: 1 }}
               exit={{ opacity: 0, y: 10, scale: 0.95 }}
