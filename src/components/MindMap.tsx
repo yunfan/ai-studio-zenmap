@@ -493,8 +493,20 @@ export default function MindMap({ initialData, onChange, theme, onThemeChange, m
       }
     });
 
+    const newSelectedId = node.parentId || nodesRef.current[0]?.id || null;
+
     setNodesVersion(v => v + 1);
-    changeSelection(node.parentId || nodesRef.current[0].id);
+
+    // Delay selection change to ensure DOM updates first
+    setTimeout(() => {
+      setSelectedId(newSelectedId);
+      if (autoPan && newSelectedId) {
+        panToNode(newSelectedId);
+      }
+      if (simulationRef.current) {
+        simulationRef.current.alpha(0.3).restart();
+      }
+    }, 0);
   };
 
   // Keyboard Navigation
