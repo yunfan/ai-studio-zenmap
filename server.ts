@@ -6,7 +6,7 @@ import { ulid } from "ulid";
 import bcrypt from "bcryptjs";
 
 // Initialize SQLite Database
-const db = new Database("database.sqlite", { verbose: console.log });
+const db = new Database("database.sqlite");
 db.pragma("journal_mode = WAL");
 
 db.exec(`
@@ -21,9 +21,17 @@ db.exec(`
 
 async function startServer() {
   const app = express();
-  const PORT = 3000;
+  const PORT = process.env.PORT ? parseInt(process.env.PORT) : 3000;
 
-  app.use(express.json({ limit: "10mb" }));
+  app.use((req, res, next) => {
+  res.header('Access-Control-Allow-Origin', '*');
+  res.header('Access-Control-Allow-Methods', 'GET, POST, OPTIONS');
+  res.header('Access-Control-Allow-Headers', 'Content-Type');
+  if (req.method === 'OPTIONS') return res.sendStatus(200);
+  next();
+});
+
+app.use(express.json({ limit: "10mb" }));
 
   // API Routes
 
@@ -98,10 +106,18 @@ async function startServer() {
   });
 
 
+  // SPA fallback - must be BEFORE vite middleware to catch non-API routes
+  app.use((req, res, next) => {
+    if (!req.path.startsWith('/api')) {
+      return res.sendFile(path.join(process.cwd(), 'index.html'));
+    }
+    next();
+  });
+
   // Vite middleware for development
   if (process.env.NODE_ENV !== "production") {
     const vite = await createViteServer({
-      server: { middlewareMode: true },
+      server: { middlewareMode: true, hmr: { port: 24679 } },
       appType: "spa",
     });
     app.use(vite.middlewares);

@@ -1,0 +1,7 @@
+CREATE TABLE IF NOT EXISTS maps (
+  id TEXT PRIMARY KEY,
+  parentId TEXT,
+  data TEXT,
+  passwordHash TEXT,
+  createdAt DATETIME DEFAULT CURRENT_TIMESTAMP
+);

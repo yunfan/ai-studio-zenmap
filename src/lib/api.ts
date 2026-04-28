@@ -1,8 +1,10 @@
 import LZString from 'lz-string';
 
+const API_BASE = process.env.API_BASE || '/api';
+
 export async function saveMap(data: any, parentId?: string, password?: string) {
   const compressed = LZString.compressToBase64(JSON.stringify(data));
-  const res = await fetch('/api/maps', {
+  const res = await fetch(`${API_BASE}/maps`, {
     method: 'POST',
     headers: { 'Content-Type': 'application/json' },
     body: JSON.stringify({ data: compressed, parentId, password })
@@ -12,13 +14,13 @@ export async function saveMap(data: any, parentId?: string, password?: string) {
 }
 
 export async function getMapMeta(id: string) {
-  const res = await fetch(`/api/maps/${id}/meta`);
+  const res = await fetch(`${API_BASE}/maps/${id}/meta`);
   if (!res.ok) throw new Error(await res.text());
   return res.json() as Promise<{ requiresPassword: boolean }>;
 }
 
 export async function loadMap(id: string, password?: string) {
-  const res = await fetch(`/api/maps/${id}/load`, {
+  const res = await fetch(`${API_BASE}/maps/${id}/load`, {
     method: 'POST',
     headers: { 'Content-Type': 'application/json' },
     body: JSON.stringify({ password })
