@@ -339,20 +339,15 @@ export default function MindMap({ initialData, onChange, theme, onThemeChange, m
     return () => sim.stop();
   }, [nodesVersion, repulsion, linkDistance]);
 
-  // Close dropdowns on click outside
   useEffect(() => {
     const handleClickOutside = (e: MouseEvent) => {
       const target = e.target as Node;
-      const isClickInExport = exportMenuRef.current?.contains(target) ?? false;
-      const isClickInTheme = themeMenuRef.current?.contains(target) ?? false;
-      const isClickInConfig = configMenuRef.current?.contains(target) ?? false;
-      const isClickInToolbar = toolbarRef.current?.contains(target) ?? false;
-
-      if (!isClickInExport && !isClickInTheme && !isClickInConfig && !isClickInToolbar) {
-        setIsExportOpen(false);
-        setIsThemeOpen(false);
-        setIsConfigOpen(false);
-      }
+      if (exportMenuRef.current?.contains(target)) return;
+      if (themeMenuRef.current?.contains(target)) return;
+      if (configMenuRef.current?.contains(target)) return;
+      setIsExportOpen(false);
+      setIsThemeOpen(false);
+      setIsConfigOpen(false);
     };
 
     document.addEventListener('mousedown', handleClickOutside);
