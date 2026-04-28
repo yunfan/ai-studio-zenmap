@@ -30,6 +30,7 @@ export const onRequestPost = async ({ request, env }: { request: Request; env: E
       headers: { ...corsHeaders, 'Content-Type': 'application/json' },
     });
   } catch (err: any) {
+    console.error('[/api/maps POST]', err);
     return new Response(JSON.stringify({ error: err.message }), {
       status: 500,
       headers: { ...corsHeaders, 'Content-Type': 'application/json' },

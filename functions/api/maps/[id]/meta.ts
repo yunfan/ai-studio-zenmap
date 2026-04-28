@@ -23,6 +23,7 @@ export const onRequestGet = async ({ params, env }: { params: { id: string }; en
       headers: { ...corsHeaders, 'Content-Type': 'application/json' },
     });
   } catch (err: any) {
+    console.error('[/api/maps/:id/meta GET]', err);
     return new Response(JSON.stringify({ error: err.message }), {
       status: 500,
       headers: { ...corsHeaders, 'Content-Type': 'application/json' },
