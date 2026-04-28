@@ -338,10 +338,16 @@ export default function MindMap({ initialData, onChange, theme, onThemeChange, m
     return () => sim.stop();
   }, [nodesVersion, repulsion, linkDistance]);
 
+  // Ref to track menu state for click outside handler (avoid stale closure)
+  const isMenuOpenRef = useRef(false);
+  useEffect(() => {
+    isMenuOpenRef.current = isExportOpen || isThemeOpen || isConfigOpen;
+  }, [isExportOpen, isThemeOpen, isConfigOpen]);
+
   // Close dropdowns on click outside
   useEffect(() => {
     const handleClickOutside = (e: MouseEvent) => {
-      if (!isExportOpen && !isThemeOpen && !isConfigOpen) return;
+      if (!isMenuOpenRef.current) return;
       
       const target = e.target as Node;
       const isClickInExport = exportRef.current?.contains(target) ?? false;
@@ -358,7 +364,7 @@ export default function MindMap({ initialData, onChange, theme, onThemeChange, m
 
     document.addEventListener('mousedown', handleClickOutside);
     return () => document.removeEventListener('mousedown', handleClickOutside);
-  }, [isExportOpen, isThemeOpen, isConfigOpen]);
+  }, []);
 
   // Handle Zoom and Pan Setup
   useEffect(() => {
