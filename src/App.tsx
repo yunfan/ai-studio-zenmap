@@ -3,8 +3,6 @@ import MindMap, { MindMapData, MindMapTheme } from './components/MindMap';
 import { I18nProvider, useTranslation } from './i18n/I18nContext';
 import { loadMap, getMapMeta, saveMap } from './lib/api';
 
-const STORAGE_KEY = 'zenmap-data';
-
 function AppContent() {
   const { t } = useTranslation();
   const [data, setData] = useState<MindMapData | null>(null);
@@ -18,12 +16,10 @@ function AppContent() {
   const [savePassword, setSavePassword] = useState('');
   const [saving, setSaving] = useState(false);
 
-  const [theme, setTheme] = useState<MindMapTheme>(() => {
-    return {
-      l: parseFloat(localStorage.getItem('zenmap-l') || '0.6'),
-      c: parseFloat(localStorage.getItem('zenmap-c') || '0.15'),
-      h: parseFloat(localStorage.getItem('zenmap-h') || '250')
-    };
+  const [theme, setTheme] = useState<MindMapTheme>({
+    l: 0.6,
+    c: 0.15,
+    h: 250
   });
 
   useEffect(() => {
@@ -42,13 +38,12 @@ function AppContent() {
         }).catch(err => {
           console.error(err);
           setLoading(false);
-          loadLocal();
         });
       } else {
-        loadLocal();
+        setLoading(false);
       }
     } else {
-      loadLocal();
+      setLoading(false);
     }
   }, []);
 
@@ -70,33 +65,10 @@ function AppContent() {
     }
   };
 
-  const loadLocal = () => {
-    const saved = localStorage.getItem(STORAGE_KEY);
-    if (saved) {
-      try {
-        setData(JSON.parse(saved));
-      } catch (e) {}
-    }
-    setLoading(false);
-  };
-
-  useEffect(() => {
-    if (data && !mapId) { 
-      localStorage.setItem(STORAGE_KEY, JSON.stringify(data));
-    }
-  }, [data, mapId]);
-
-  useEffect(() => {
-    localStorage.setItem('zenmap-l', theme.l.toString());
-    localStorage.setItem('zenmap-c', theme.c.toString());
-    localStorage.setItem('zenmap-h', theme.h.toString());
-  }, [theme]);
-
   const handlePublish = async () => {
     if (!data) return;
     setSaving(true);
     try {
-      // Clean up diffStatus before saving
       const cleanedData: MindMapData = {
         nodes: data.nodes.filter(n => n.diffStatus !== 'deleted').map(n => {
           const { diffStatus, ...rest } = n;
@@ -108,7 +80,6 @@ function AppContent() {
       const res = await saveMap(cleanedData, mapId || undefined, savePassword);
       setShowSaveModal(false);
       setSavePassword('');
-      // Redirect to new ID
       window.location.href = `/a/${res.id}`;
     } catch (err: any) {
       console.error("Save error:", err);
@@ -152,10 +123,10 @@ function AppContent() {
 
   return (
     <>
-      <MindMap 
-        initialData={data} 
-        onChange={setData} 
-        theme={theme} 
+      <MindMap
+        initialData={data}
+        onChange={setData}
+        theme={theme}
         onThemeChange={setTheme}
         mapId={mapId}
         onSaveRequested={() => setShowSaveModal(true)}
