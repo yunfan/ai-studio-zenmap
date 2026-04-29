@@ -478,14 +478,24 @@ export default function MindMap({ initialData, onChange, theme, onThemeChange, m
 
   // Operations
   const addNode = (parentId: string, asSibling: boolean = false) => {
+    console.log('addNode start, parentId:', parentId);
     const parentNode = nodesRef.current.find(n => n.id === parentId);
-    if (!parentNode || parentNode.diffStatus === 'deleted') return;
+    console.log('addNode parentNode:', parentNode?.id, 'diffStatus:', parentNode?.diffStatus);
+    if (!parentNode || parentNode.diffStatus === 'deleted') {
+      console.log('addNode early return: no parentNode');
+      return;
+    }
 
     const actualParentId = asSibling && parentNode.parentId ? parentNode.parentId : parentNode.id;
     const nodeParent = nodesRef.current.find(n => n.id === actualParentId);
-    if (!nodeParent || nodeParent.diffStatus === 'deleted') return;
+    console.log('addNode nodeParent:', nodeParent?.id);
+    if (!nodeParent || nodeParent.diffStatus === 'deleted') {
+      console.log('addNode early return: no nodeParent');
+      return;
+    }
 
     const id = uuidv4();
+    console.log('addNode new id:', id);
     const px = nodeParent.x || 0;
     const py = nodeParent.y || 0;
     const dx = asSibling ? 0 : 50;
@@ -500,8 +510,10 @@ export default function MindMap({ initialData, onChange, theme, onThemeChange, m
       diffStatus: 'added'
     };
 
+    console.log('addNode pushing, nodesRef.length before:', nodesRef.current.length);
     nodesRef.current.push(newNode);
     linksRef.current.push({ source: actualParentId, target: id });
+    console.log('addNode pushed, nodesRef.length after:', nodesRef.current.length);
 
     setNodesVersion(v => v + 1);
     changeSelection(id);
@@ -510,6 +522,7 @@ export default function MindMap({ initialData, onChange, theme, onThemeChange, m
     if (simulationRef.current) {
       simulationRef.current.alpha(0.5).restart();
     }
+    console.log('addNode complete');
   };
 
   const deleteNode = (id: string) => {
