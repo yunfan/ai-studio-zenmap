@@ -478,19 +478,12 @@ export default function MindMap({ initialData, onChange, theme, onThemeChange, m
 
   // Operations
   const addNode = (parentId: string, asSibling: boolean = false) => {
-    console.log('[ADD] addNode called, parentId:', parentId, 'nodesRef.length before:', nodesRef.current.length);
     const parentNode = nodesRef.current.find(n => n.id === parentId);
-    if (!parentNode || parentNode.diffStatus === 'deleted') {
-      console.log('[ADD] parentNode not found or deleted');
-      return;
-    }
+    if (!parentNode || parentNode.diffStatus === 'deleted') return;
 
     const actualParentId = asSibling && parentNode.parentId ? parentNode.parentId : parentNode.id;
     const nodeParent = nodesRef.current.find(n => n.id === actualParentId);
-    if (!nodeParent || nodeParent.diffStatus === 'deleted') {
-      console.log('[ADD] nodeParent not found or deleted');
-      return;
-    }
+    if (!nodeParent || nodeParent.diffStatus === 'deleted') return;
 
     const id = uuidv4();
     const px = nodeParent.x || 0;
@@ -507,10 +500,8 @@ export default function MindMap({ initialData, onChange, theme, onThemeChange, m
       diffStatus: 'added'
     };
 
-    console.log('[ADD] Pushing node, id:', id);
     nodesRef.current.push(newNode);
     linksRef.current.push({ source: actualParentId, target: id });
-    console.log('[ADD] nodesRef.length after push:', nodesRef.current.length);
 
     setNodesVersion(v => v + 1);
     changeSelection(id);
@@ -581,9 +572,7 @@ export default function MindMap({ initialData, onChange, theme, onThemeChange, m
 
   // Keyboard Navigation
   useEffect(() => {
-    console.log('[KEY] handleKeyDown useEffect mounted, selectedId:', selectedId);
     const handleKeyDown = (e: KeyboardEvent) => {
-      console.log('[KEY] keydown:', e.key, 'selectedId:', selectedId);
       if (document.activeElement?.tagName === 'INPUT' || document.activeElement?.tagName === 'TEXTAREA') {
         if (e.key === 'Enter') {
           e.preventDefault();
@@ -594,18 +583,13 @@ export default function MindMap({ initialData, onChange, theme, onThemeChange, m
         return;
       }
 
-      if (!selectedId) {
-        console.log('[KEY] early return: no selectedId');
-        return;
-      }
+      if (!selectedId) return;
 
       if (e.key === 'Enter') {
         e.preventDefault();
-        console.log('[KEY] Enter -> add sibling');
         addNode(selectedId, true);
       } else if (e.key === 'Tab') {
         e.preventDefault();
-        console.log('[KEY] Tab -> add child');
         addNode(selectedId, false);
       } else if (e.key === 'Backspace' || e.key === 'Delete') {
         e.preventDefault();
@@ -646,7 +630,7 @@ export default function MindMap({ initialData, onChange, theme, onThemeChange, m
 
     window.addEventListener('keydown', handleKeyDown);
     return () => window.removeEventListener('keydown', handleKeyDown);
-  }, [selectedId, changeSelection, addNode]);
+  }, [selectedId, changeSelection]);
 
   const updateNodeText = (id: string, text: string) => {
     const node = nodesRef.current.find(n => n.id === id);
