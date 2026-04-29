@@ -110,9 +110,9 @@ export default function MindMap({ initialData, onChange, theme, onThemeChange, m
     onThemeChange?.({ l: themeL, c: themeC, h });
   };
 
-  const LIGHTNESS_STEP = Number(import.meta.env.VITE_TREE_COLOR_LIGHTNESS_STEP) || 0.08;
-  const LEVELS_PER_HUE = Number(import.meta.env.VITE_TREE_COLOR_LEVELS_PER_HUE) || 5;
-  const HUE_STEP = Number(import.meta.env.VITE_TREE_COLOR_HUE_STEP) || 60;
+  const LIGHTSTEP = Number(import.meta.env.VITE_NODE_LIGHTSTEP) || 0.08;
+  const LEVELMAX = Number(import.meta.env.VITE_NODE_LEVELMAX) || 5;
+  const HUESIZE = Number(import.meta.env.VITE_NODE_HUESIZE) || 60;
 
   const getNodeDepth = useCallback((nodeId: string): number => {
     const node = nodesRef.current.find(n => n.id === nodeId);
@@ -125,12 +125,12 @@ export default function MindMap({ initialData, onChange, theme, onThemeChange, m
       return `oklch(${themeL} ${themeC} ${themeH})`;
     }
     const depth = getNodeDepth(node.id);
-    const hueShift = Math.floor(depth / LEVELS_PER_HUE) * HUE_STEP;
-    const lightnessBoost = depth * LIGHTNESS_STEP;
+    const hueShift = Math.floor(depth / LEVELMAX) * HUESIZE;
+    const lightnessBoost = depth * LIGHTSTEP;
     const newL = Math.min(0.95, themeL + lightnessBoost);
     const newH = (themeH + hueShift) % 360;
     return `oklch(${newL} ${themeC} ${newH})`;
-  }, [themeL, themeC, themeH, getNodeDepth, LEVELS_PER_HUE, HUE_STEP, LIGHTNESS_STEP]);
+  }, [themeL, themeC, themeH, getNodeDepth, LEVELMAX, HUESIZE, LIGHTSTEP]);
 
   const getNodeTextColor = useCallback((node: MapNode): string => {
     const color = getNodeColor(node);

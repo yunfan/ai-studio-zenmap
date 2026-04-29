@@ -13,9 +13,9 @@ export default defineConfig(({ mode }) => {
       },
     },
     define: {
-      'import.meta.env.VITE_TREE_COLOR_LIGHTNESS_STEP': JSON.stringify(env.VITE_TREE_COLOR_LIGHTNESS_STEP || '0.08'),
-      'import.meta.env.VITE_TREE_COLOR_LEVELS_PER_HUE': JSON.stringify(env.VITE_TREE_COLOR_LEVELS_PER_HUE || '5'),
-      'import.meta.env.VITE_TREE_COLOR_HUE_STEP': JSON.stringify(env.VITE_TREE_COLOR_HUE_STEP || '60'),
+      'import.meta.env.VITE_NODE_LIGHTSTEP': JSON.stringify(env.VITE_NODE_LIGHTSTEP || '0.08'),
+      'import.meta.env.VITE_NODE_LEVELMAX': JSON.stringify(env.VITE_NODE_LEVELMAX || '5'),
+      'import.meta.env.VITE_NODE_HUESIZE': JSON.stringify(env.VITE_NODE_HUESIZE || '60'),
     },
   };
 });
