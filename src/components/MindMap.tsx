@@ -6,6 +6,7 @@ import { cn } from '../lib/utils';
 import { AnimatePresence, motion } from 'motion/react';
 import { useTranslation } from '../i18n/I18nContext';
 import * as htmlToImage from 'html-to-image';
+import { NODE_LIGHTSTEP, NODE_LEVELMAX, NODE_HUESIZE } from '../config';
 
 export interface MapNode extends d3.SimulationNodeDatum {
   id: string;
@@ -110,9 +111,9 @@ export default function MindMap({ initialData, onChange, theme, onThemeChange, m
     onThemeChange?.({ l: themeL, c: themeC, h });
   };
 
-  const LIGHTSTEP = Number(import.meta.env.VITE_NODE_LIGHTSTEP) || 0.08;
-  const LEVELMAX = Number(import.meta.env.VITE_NODE_LEVELMAX) || 5;
-  const HUESIZE = Number(import.meta.env.VITE_NODE_HUESIZE) || 60;
+  const LIGHTSTEP = NODE_LIGHTSTEP;
+  const LEVELMAX = NODE_LEVELMAX;
+  const HUESIZE = NODE_HUESIZE;
 
   const getNodeDepth = useCallback((nodeId: string): number => {
     const node = nodesRef.current.find(n => n.id === nodeId);
