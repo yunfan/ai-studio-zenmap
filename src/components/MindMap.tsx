@@ -107,6 +107,35 @@ export default function MindMap({ initialData, onChange, theme, onThemeChange, m
     onThemeChange?.({ l: themeL, c: themeC, h });
   };
 
+  const LIGHTNESS_STEP = Number(import.meta.env.VITE_TREE_COLOR_LIGHTNESS_STEP) || 0.08;
+  const LEVELS_PER_HUE = Number(import.meta.env.VITE_TREE_COLOR_LEVELS_PER_HUE) || 5;
+  const HUE_STEP = Number(import.meta.env.VITE_TREE_COLOR_HUE_STEP) || 60;
+
+  const getNodeDepth = useCallback((nodeId: string): number => {
+    const node = nodesRef.current.find(n => n.id === nodeId);
+    if (!node || !node.parentId) return 0;
+    return 1 + getNodeDepth(node.parentId);
+  }, []);
+
+  const getNodeColor = useCallback((node: MapNode): string => {
+    if (node.isRoot) {
+      return `oklch(${themeL} ${themeC} ${themeH})`;
+    }
+    const depth = getNodeDepth(node.id);
+    const hueShift = Math.floor(depth / LEVELS_PER_HUE) * HUE_STEP;
+    const lightnessBoost = depth * LIGHTNESS_STEP;
+    const newL = Math.min(0.95, themeL + lightnessBoost);
+    const newH = (themeH + hueShift) % 360;
+    return `oklch(${newL} ${themeC} ${newH})`;
+  }, [themeL, themeC, themeH, getNodeDepth, LEVELS_PER_HUE, HUE_STEP, LIGHTNESS_STEP]);
+
+  const getNodeTextColor = useCallback((node: MapNode): string => {
+    const color = getNodeColor(node);
+    const lMatch = color.match(/oklch\(([0-9.]+)/);
+    const l = lMatch ? parseFloat(lMatch[1]) : themeL;
+    return l > 0.7 ? 'oklch(0.2 0.05 ' + (themeH % 360) + ')' : '#ffffff';
+  }, [getNodeColor, themeL, themeH]);
+
   // Theme / Color Computation
   const isLight = themeL > 0.7;
   const themeStyles = {
@@ -662,12 +691,17 @@ export default function MindMap({ initialData, onChange, theme, onThemeChange, m
                     : node.diffStatus === 'edited'
                       ? "bg-[var(--theme-main)] border-amber-400 text-[var(--theme-text-contrast)]"
                       : node.isRoot
-                        ? "bg-[var(--theme-main)] border-[var(--theme-main)] text-[var(--theme-text-contrast)] shadow-xl scale-105"
-                        : "bg-white border-[var(--theme-border)] text-zinc-900 hover:border-[var(--theme-border-hover)] hover:shadow-lg cursor-pointer",
+                        ? "shadow-xl scale-105"
+                        : "hover:shadow-lg cursor-pointer",
                   selectedId === node.id
-                    ? "ring-2 ring-[var(--theme-main)] ring-offset-2 ring-offset-[var(--theme-bg-soft)] border-transparent z-10"
+                    ? "ring-2 ring-offset-2 ring-offset-[var(--theme-bg-soft)] border-transparent z-10"
                     : ""
                 )}
+                style={{
+                  backgroundColor: node.diffStatus === 'added' || node.diffStatus === 'edited' ? undefined : getNodeColor(node),
+                  borderColor: node.diffStatus === 'added' || node.diffStatus === 'edited' ? undefined : getNodeColor(node),
+                  color: node.diffStatus === 'added' || node.diffStatus === 'edited' ? undefined : getNodeTextColor(node),
+                }}
               >
                 {editingId === node.id ? (
                   <input
