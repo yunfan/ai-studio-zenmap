@@ -635,7 +635,7 @@ export default function MindMap({ initialData, onChange, theme, onThemeChange, m
 
     window.addEventListener('keydown', handleKeyDown);
     return () => window.removeEventListener('keydown', handleKeyDown);
-  }, [selectedId, nodesVersion, changeSelection]);
+  }, [selectedId, nodesVersion, changeSelection, addNode]);
 
   const updateNodeText = (id: string, text: string) => {
     const node = nodesRef.current.find(n => n.id === id);
