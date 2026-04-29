@@ -74,6 +74,12 @@ export default function MindMap({ initialData, onChange, theme, onThemeChange, m
   const [selectedId, setSelectedId] = useState<string | null>(null);
   const [editingId, setEditingId] = useState<string | null>(null);
   const [nodesVersion, setNodesVersion] = useState(0); // For forcing React to re-render DOM list
+
+  console.log('[RENDER] MindMap rendering, nodesVersion:', nodesVersion, 'nodesRef.length:', nodesRef.current.length);
+
+  useEffect(() => {
+    console.log('[RESPONSE] nodesVersion changed to:', nodesVersion, 'nodesRef.length:', nodesRef.current.length);
+  }, [nodesVersion]);
   
   // Physics/Config State
   const [repulsion, setRepulsion] = useState(-1000);
@@ -509,8 +515,9 @@ export default function MindMap({ initialData, onChange, theme, onThemeChange, m
     console.log('[ACTION] linksRef push, source:', actualParentId, 'target:', id);
     linksRef.current.push({ source: actualParentId, target: id });
 
-    console.log('[ACTION] Calling setNodesVersion');
-    setNodesVersion(v => v + 1);
+    console.log('[ACTION] Calling setNodesVersion, current:', nodesVersion);
+    setNodesVersion(nodesVersion + 1);
+    console.log('[ACTION] setNodesVersion called, new value should be:', nodesVersion + 1);
     console.log('[ACTION] Calling changeSelection with:', id);
     changeSelection(id);
 
