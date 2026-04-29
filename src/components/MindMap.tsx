@@ -74,12 +74,6 @@ export default function MindMap({ initialData, onChange, theme, onThemeChange, m
   const [selectedId, setSelectedId] = useState<string | null>(null);
   const [editingId, setEditingId] = useState<string | null>(null);
   const [nodesVersion, setNodesVersion] = useState(0); // For forcing React to re-render DOM list
-
-  console.log('[RENDER] MindMap rendering, nodesVersion:', nodesVersion, 'nodesRef.length:', nodesRef.current.length);
-
-  useEffect(() => {
-    console.log('[RESPONSE] nodesVersion changed to:', nodesVersion, 'nodesRef.length:', nodesRef.current.length);
-  }, [nodesVersion]);
   
   // Physics/Config State
   const [repulsion, setRepulsion] = useState(-1000);
@@ -484,20 +478,16 @@ export default function MindMap({ initialData, onChange, theme, onThemeChange, m
 
   // Operations
   const addNode = (parentId: string, asSibling: boolean = false) => {
-    console.log('[ACTION] addNode called', { parentId, asSibling, nodesCount: nodesRef.current.length });
     const parentNode = nodesRef.current.find(n => n.id === parentId);
-    console.log('[DEBUG] parentNode found:', parentNode?.id, parentNode?.diffStatus);
     if (!parentNode || parentNode.diffStatus === 'deleted') return;
 
     const actualParentId = asSibling && parentNode.parentId ? parentNode.parentId : parentNode.id;
     const nodeParent = nodesRef.current.find(n => n.id === actualParentId);
-    console.log('[DEBUG] nodeParent found:', nodeParent?.id, nodeParent?.diffStatus);
     if (!nodeParent || nodeParent.diffStatus === 'deleted') return;
 
     const id = uuidv4();
     const px = nodeParent.x || 0;
     const py = nodeParent.y || 0;
-    // slightly offset
     const dx = asSibling ? 0 : 50;
     const dy = asSibling ? 50 : 0;
 
@@ -510,22 +500,14 @@ export default function MindMap({ initialData, onChange, theme, onThemeChange, m
       diffStatus: 'added'
     };
 
-    console.log('[ACTION] Pushing new node to nodesRef, current length:', nodesRef.current.length);
     nodesRef.current.push(newNode);
-    console.log('[ACTION] linksRef push, source:', actualParentId, 'target:', id);
     linksRef.current.push({ source: actualParentId, target: id });
 
-    console.log('[ACTION] Calling setNodesVersion, current:', nodesVersion);
-    setNodesVersion(nodesVersion + 1);
-    console.log('[ACTION] setNodesVersion called, new value should be:', nodesVersion + 1);
-    console.log('[ACTION] Calling changeSelection with:', id);
+    setNodesVersion(v => v + 1);
     changeSelection(id);
 
-    // Auto edit
     setTimeout(() => setEditingId(id), 50);
-    // Restart sim
     if (simulationRef.current) {
-        console.log('[ACTION] Restarting simulation');
         simulationRef.current.alpha(0.5).restart();
     }
   };
@@ -591,7 +573,6 @@ export default function MindMap({ initialData, onChange, theme, onThemeChange, m
   // Keyboard Navigation
   useEffect(() => {
     const handleKeyDown = (e: KeyboardEvent) => {
-      console.log('[INPUT] keydown event, key:', e.key, 'selectedId:', selectedId, 'activeElement:', document.activeElement?.tagName);
       if (document.activeElement?.tagName === 'INPUT' || document.activeElement?.tagName === 'TEXTAREA') {
         if (e.key === 'Enter') {
           e.preventDefault();
@@ -599,23 +580,16 @@ export default function MindMap({ initialData, onChange, theme, onThemeChange, m
         } else if (e.key === 'Escape') {
           setEditingId(null);
         }
-        return; // Don't process shortcuts while editing
-      }
-
-      if (!selectedId) {
-        console.log('[INPUT] early return: selectedId is null');
         return;
       }
 
+      if (!selectedId) return;
+
       if (e.key === 'Enter') {
         e.preventDefault();
-        console.log('[INPUT] Enter key -> add sibling');
-        // Add sibling
         addNode(selectedId, true);
       } else if (e.key === 'Tab') {
         e.preventDefault();
-        console.log('[INPUT] Tab key -> add child');
-        // Add child
         addNode(selectedId, false);
       } else if (e.key === 'Backspace' || e.key === 'Delete') {
         e.preventDefault();
@@ -625,7 +599,7 @@ export default function MindMap({ initialData, onChange, theme, onThemeChange, m
         setEditingId(selectedId);
       } else if (e.key.startsWith('Arrow')) {
         e.preventDefault();
-        
+
         const currNode = nodesRef.current.find(n => n.id === selectedId);
         if (!currNode) return;
 
@@ -656,7 +630,7 @@ export default function MindMap({ initialData, onChange, theme, onThemeChange, m
 
     window.addEventListener('keydown', handleKeyDown);
     return () => window.removeEventListener('keydown', handleKeyDown);
-  }, [selectedId, nodesVersion, changeSelection, addNode]);
+  }, [selectedId, changeSelection, addNode]);
 
   const updateNodeText = (id: string, text: string) => {
     const node = nodesRef.current.find(n => n.id === id);
@@ -756,10 +730,9 @@ export default function MindMap({ initialData, onChange, theme, onThemeChange, m
                 
                 {/* Visual Add Button on hover */}
                 {node.diffStatus !== 'deleted' && (
-                  <button 
+                  <button
                     onClick={(e) => {
                         e.stopPropagation();
-                        console.log('[INPUT] Button click -> add child, nodeId:', node.id);
                         addNode(node.id, false);
                     }}
                     className={cn(
