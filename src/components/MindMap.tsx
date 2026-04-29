@@ -70,11 +70,16 @@ export default function MindMap({ initialData, onChange, theme, onThemeChange, m
   const toolbarRef = useRef<HTMLDivElement>(null);
   const zoomBehaviorRef = useRef<d3.ZoomBehavior<Element, unknown> | null>(null);
   
-  // React State for UI
+// React State for UI
   const [selectedId, setSelectedId] = useState<string | null>(null);
   const [editingId, setEditingId] = useState<string | null>(null);
   const [nodesVersion, setNodesVersion] = useState(0); // For forcing React to re-render DOM list
-  
+
+  // Debug render count
+  const renderCount = useRef(0);
+  renderCount.current++;
+  console.log('MindMap render #' + renderCount.current + ', nodesVersion:', nodesVersion, 'nodesRef.length:', nodesRef.current.length);
+
   // Physics/Config State
   const [repulsion, setRepulsion] = useState(-1000);
   const [linkDistance, setLinkDistance] = useState(120);
@@ -698,6 +703,7 @@ export default function MindMap({ initialData, onChange, theme, onThemeChange, m
               style={{
                 transform: `translate(calc(-50% + ${node.x || 0}px), calc(-50% + ${node.y || 0}px))`
               }}
+              data-node-id={node.id}
               onClick={(e) => {
                 if (node.diffStatus === 'deleted') return;
                 e.stopPropagation();
