@@ -55,6 +55,9 @@ function AppContent() {
       setErrorMsg('');
       const res = await loadMap(id, password);
       setData(res.data);
+      if (res.data.theme) {
+        setTheme(res.data.theme);
+      }
       setRequirePassword(false);
       setLoading(false);
     } catch (err: any) {
@@ -82,7 +85,10 @@ function AppContent() {
           const { diffStatus, ...rest } = n;
           return rest;
         }),
-        links: data.links
+        links: data.links,
+        theme,
+        repulsion: data.repulsion,
+        linkDistance: data.linkDistance
       };
 
       const res = await saveMap(cleanedData, mapId || undefined, savePassword);

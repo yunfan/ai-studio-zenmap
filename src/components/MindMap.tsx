@@ -29,6 +29,9 @@ export interface MapLink extends d3.SimulationLinkDatum<MapNode> {
 export interface MindMapData {
   nodes: { id: string; parentId: string | null; text: string; isRoot?: boolean; x?: number; y?: number; diffStatus?: 'added' | 'deleted' | 'edited' }[];
   links: { source: string; target: string }[];
+  theme?: MindMapTheme;
+  repulsion?: number;
+  linkDistance?: number;
 }
 
 export interface MindMapTheme {
@@ -298,25 +301,35 @@ export default function MindMap({ initialData, onChange, theme, onThemeChange, m
 
   // Initialize data
   useEffect(() => {
-    if (initialData && initialData.nodes && initialData.nodes.length > 0) {
-      nodesRef.current = initialData.nodes.map((n: any) => {
-        return { ...n, vx: 0, vy: 0, fx: n.isRoot ? 0 : null, fy: n.isRoot ? 0 : null };
-      });
-      linksRef.current = initialData.links.map((l: any) => ({
-        source: l.source.id || l.source,
-        target: l.target.id || l.target
-      }));
-    } else if (!nodesRef.current.length) {
-      const rootId = uuidv4();
-      nodesRef.current = [
-        { id: rootId, parentId: null, text: t('map.centralIdea'), isRoot: true, fx: 0, fy: 0 }
-      ];
-      linksRef.current = [];
+    if (!initialData || !initialData.nodes || initialData.nodes.length === 0) {
+      if (!nodesRef.current.length) {
+        const rootId = uuidv4();
+        nodesRef.current = [
+          { id: rootId, parentId: null, text: t('map.centralIdea'), isRoot: true, fx: 0, fy: 0 }
+        ];
+        linksRef.current = [];
+        setSelectedId(nodesRef.current[0]?.id || null);
+        setNodesVersion(v => v + 1);
+      }
+      return;
     }
     
+    nodesRef.current = initialData.nodes.map((n: any) => {
+      return { ...n, vx: 0, vy: 0, fx: n.isRoot ? 0 : null, fy: n.isRoot ? 0 : null };
+    });
+    linksRef.current = initialData.links.map((l: any) => ({
+      source: l.source.id || l.source,
+      target: l.target.id || l.target
+    }));
+    if (initialData.repulsion !== undefined) {
+      setRepulsion(initialData.repulsion);
+    }
+    if (initialData.linkDistance !== undefined) {
+      setLinkDistance(initialData.linkDistance);
+    }
     setSelectedId(nodesRef.current[0]?.id || null);
     setNodesVersion(v => v + 1);
-  }, []); // Only run once on mount
+  }, [initialData]);
 
   // Report changes
   useEffect(() => {
@@ -326,10 +339,12 @@ export default function MindMap({ initialData, onChange, theme, onThemeChange, m
       links: linksRef.current.map(l => ({ 
         source: typeof l.source === 'object' ? l.source.id : l.source,
         target: typeof l.target === 'object' ? l.target.id : l.target
-      }))
+      })),
+      repulsion,
+      linkDistance
     };
     onChange?.(currentData);
-  }, [nodesVersion, onChange]);
+  }, [nodesVersion, onChange, repulsion, linkDistance]);
 
   // Restart Simulation
   useEffect(() => {
