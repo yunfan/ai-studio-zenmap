@@ -573,6 +573,7 @@ export default function MindMap({ initialData, onChange, theme, onThemeChange, m
   // Keyboard Navigation
   useEffect(() => {
     const handleKeyDown = (e: KeyboardEvent) => {
+      console.log('keydown:', e.key, 'selectedId:', selectedId, 'activeEl:', document.activeElement?.tagName);
       if (document.activeElement?.tagName === 'INPUT' || document.activeElement?.tagName === 'TEXTAREA') {
         if (e.key === 'Enter') {
           e.preventDefault();
@@ -583,7 +584,10 @@ export default function MindMap({ initialData, onChange, theme, onThemeChange, m
         return;
       }
 
-      if (!selectedId) return;
+      if (!selectedId) {
+        console.log('no selectedId, returning');
+        return;
+      }
 
       if (e.key === 'Enter') {
         e.preventDefault();
